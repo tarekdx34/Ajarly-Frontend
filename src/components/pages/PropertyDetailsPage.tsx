@@ -581,9 +581,6 @@ export function PropertyDetailsPage({
               </div>
             </div>
             <Separator />
-            // Add this section after the Description section and before the
-            booking card // Replace lines 584-625 in your original code with
-            this enhanced version
             {/* Reviews Section */}
             {reviews.length > 0 && (
               <div className="space-y-6">
