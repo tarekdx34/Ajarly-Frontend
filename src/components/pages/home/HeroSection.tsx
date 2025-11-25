@@ -19,42 +19,49 @@ export function HeroSection({
   onSearch,
 }: HeroSectionProps) {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const parallaxOffset = scrollY * 0.5;
 
   return (
     <div className="relative h-[600px] flex items-center justify-center overflow-hidden">
-      <div
-        className="absolute inset-0 transition-transform duration-100 ease-out"
-        style={{ transform: `translateY(${parallaxOffset}px)` }}
-      >
+      {/* Static 3D Scene - no parallax animation */}
+      <div className="absolute inset-0">
         <Scene3D />
       </div>
 
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/20 pointer-events-none" />
 
       <div className="relative z-10 text-center px-4 w-full max-w-4xl mx-auto">
-        <div
-          style={{
-            opacity: Math.max(0, 1 - scrollY / 300),
-            transform: `translateY(${-scrollY * 0.3}px)`,
-            transition: "opacity 0.1s, transform 0.1s",
-          }}
-        >
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg animate-fadeIn">
-            {t?.heroTitle || "Find Your Perfect"}{" "}
-            <span className="text-[#00BFA6] drop-shadow-lg">
-              {t?.heroTitleHighlight || "Rental in Egypt"}
-            </span>
+        {/* Shorter, more concise hero text - no scroll animation */}
+        <div className="mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 drop-shadow-lg animate-fadeIn">
+            {language === "ar" ? (
+              <>
+                اكتشف{" "}
+                <span className="text-[#00BFA6] drop-shadow-lg">
+                  إيجارات فريدة
+                </span>{" "}
+                على ساحل مصر المتوسطي
+              </>
+            ) : (
+              <>
+                Find Your Perfect{" "}
+                <span className="text-[#00BFA6] drop-shadow-lg">
+                  Mediterranean Rental
+                </span>
+              </>
+            )}
           </h1>
-          <p className="text-xl text-white/90 mb-8 drop-shadow-md animate-fadeIn delay-200">
-            {t?.heroSubtitle || "Discover amazing properties across Egypt"}
+          <p className="text-lg md:text-xl text-white/90 drop-shadow-md animate-fadeIn delay-200">
+            {language === "ar"
+              ? "اكتشف عقارات فريدة على طول ساحل مصر المذهل"
+              : "Discover unique vacation rentals along Egypt's stunning coast"}
           </p>
         </div>
 
+        {/* Search bar - no scroll animations */}
         <SearchBar
           t={t}
           language={language}
-          scrollY={scrollY}
+          scrollY={0}
           governorates={governorates}
           isSearchFocused={isSearchFocused}
           onFocusChange={setIsSearchFocused}
@@ -62,10 +69,8 @@ export function HeroSection({
         />
       </div>
 
-      <div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce"
-        style={{ opacity: Math.max(0, 1 - scrollY / 200) }}
-      >
+      {/* Scroll indicator - static, no animation based on scroll */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
         <svg
           className="w-8 h-8 text-white drop-shadow-lg"
           fill="none"
