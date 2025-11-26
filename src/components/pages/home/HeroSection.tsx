@@ -21,14 +21,16 @@ export function HeroSection({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   return (
-    <div className="relative h-[600px] flex items-center justify-center overflow-hidden">
-      {/* Static 3D Scene - no parallax animation */}
+    <div className="relative h-screen flex items-center justify-center overflow-hidden">
+      {" "}
       <div className="absolute inset-0">
-        <Scene3D />
+        <img
+          src="src\assets\jasper-boer-CvpWxeAEUOE-unsplash.jpg"
+          alt="Hero Background"
+          className="w-full h-full object-cover"
+        />
       </div>
-
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/20 pointer-events-none" />
-
       <div className="relative z-10 text-center px-4 w-full max-w-4xl mx-auto">
         {/* Shorter, more concise hero text - no scroll animation */}
         <div className="mb-8">
@@ -68,7 +70,6 @@ export function HeroSection({
           onSearch={onSearch}
         />
       </div>
-
       {/* Scroll indicator - static, no animation based on scroll */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
         <svg

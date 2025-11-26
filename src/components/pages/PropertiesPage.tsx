@@ -36,6 +36,7 @@ export function PropertiesPage({
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
 
   // Parse URL search params from React Router
   const initialGovernorate = urlSearchParams.get("governorate") ?? "";
@@ -208,6 +209,121 @@ export function PropertiesPage({
   const handleSearch = () => {
     searchProperties();
   };
+  const handleMobileSearch = async () => {
+    if (!mobileSearchQuery.trim()) {
+      searchProperties();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const query = mobileSearchQuery.toLowerCase().trim();
+
+      // Step 1: Check if it matches a governorate
+      const matchedGov = governorates.find(
+        (gov) =>
+          gov.toLowerCase().includes(query) || query.includes(gov.toLowerCase())
+      );
+
+      if (matchedGov) {
+        // Search by governorate
+        const searchRequest: SearchRequest = {
+          governorate: matchedGov,
+          sortBy: sortBy === "recommended" ? "averageRating" : sortBy,
+          sortDirection: sortBy === "pricePerNight" ? "ASC" : "DESC",
+          page: 0,
+          size: 20,
+        };
+
+        const response = await api.advancedSearch(searchRequest);
+        if (response && Array.isArray(response.properties)) {
+          setProperties(response.properties);
+          if (response.properties.length === 0) {
+            toast.info(
+              language === "ar" ? "لا توجد نتائج" : "No results found"
+            );
+          }
+        }
+        return;
+      }
+
+      // Step 2: Check if it matches a city
+      const matchedCity = cities.find(
+        (c) =>
+          c.toLowerCase().includes(query) || query.includes(c.toLowerCase())
+      );
+
+      if (matchedCity && governorate) {
+        // Search by city
+        const searchRequest: SearchRequest = {
+          governorate: governorate,
+          city: matchedCity,
+          sortBy: sortBy === "recommended" ? "averageRating" : sortBy,
+          sortDirection: sortBy === "pricePerNight" ? "ASC" : "DESC",
+          page: 0,
+          size: 20,
+        };
+
+        const response = await api.advancedSearch(searchRequest);
+        if (response && Array.isArray(response.properties)) {
+          setProperties(response.properties);
+          if (response.properties.length === 0) {
+            toast.info(
+              language === "ar" ? "لا توجد نتائج" : "No results found"
+            );
+          }
+        }
+        return;
+      }
+
+      // Step 3: Fetch all properties and search by title/neighborhood client-side
+      const searchRequest: SearchRequest = {
+        sortBy: sortBy === "recommended" ? "averageRating" : sortBy,
+        sortDirection: sortBy === "pricePerNight" ? "ASC" : "DESC",
+        page: 0,
+        size: 100, // Get more results for client-side filtering
+      };
+
+      const response = await api.advancedSearch(searchRequest);
+
+      if (response && Array.isArray(response.properties)) {
+        // Filter properties by title (English/Arabic) or city/governorate
+        const filteredProperties = response.properties.filter((property) => {
+          const titleEn = (property.titleEn || "").toLowerCase();
+          const titleAr = (property.titleAr || "").toLowerCase();
+          const city = (property.city || "").toLowerCase();
+          const gov = (property.governorate || "").toLowerCase();
+
+          return (
+            titleEn.includes(query) ||
+            titleAr.includes(query) ||
+            city.includes(query) ||
+            gov.includes(query) ||
+            query.includes(titleEn) ||
+            query.includes(titleAr)
+          );
+        });
+
+        setProperties(filteredProperties);
+
+        if (filteredProperties.length === 0) {
+          toast.info(
+            language === "ar"
+              ? "لا توجد نتائج تطابق بحثك"
+              : "No results match your search"
+          );
+        }
+      } else {
+        setProperties([]);
+      }
+    } catch (err: any) {
+      console.error("❌ Mobile search error:", err);
+      toast.error(language === "ar" ? "فشل البحث" : "Search failed");
+      setProperties([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleReset = () => {
     setGovernorate("");
@@ -241,8 +357,9 @@ export function PropertiesPage({
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sticky Search Bar */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      {/* Sticky Search Bar - Desktop */}
+      <div className="hidden lg:block relative z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
           <SearchBar
             t={t}
             language={language}
@@ -258,6 +375,48 @@ export function PropertiesPage({
               guests: bedrooms,
             }}
           />
+        </div>
+      </div>
+
+      {/* Mobile Search Bar */}
+      <div className="block md:hidden sticky top-20 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="px-4 py-3">
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={mobileSearchQuery}
+                onChange={(e) => setMobileSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleMobileSearch();
+                  }
+                }}
+                placeholder={
+                  language === "ar"
+                    ? "ابحث بالاسم، المحافظة، أو المنطقة..."
+                    : "Search by name, governorate, or area..."
+                }
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent text-sm"
+              />
+            </div>
+            <Button
+              onClick={handleMobileSearch}
+              size="sm"
+              className="flex-shrink-0 bg-[#00BFA6] hover:bg-[#00A890]"
+            >
+              <Search className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={() => setShowFilters(!showFilters)}
+              size="sm"
+              variant="outline"
+              className="flex-shrink-0"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
