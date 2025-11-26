@@ -25,7 +25,7 @@ export function HeroSection({
       {" "}
       <div className="absolute inset-0">
         <img
-          src="src\assets\jasper-boer-CvpWxeAEUOE-unsplash.jpg"
+          src="src/assets/jasper-boer-CvpWxeAEUOE-unsplash.jpg"
           alt="Hero Background"
           className="w-full h-full object-cover"
         />
