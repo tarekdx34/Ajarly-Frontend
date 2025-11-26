@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SearchBar, SearchParams } from "./SearchBar";
 import { Scene3D } from "./Scene3D";
 import { Language } from "../../../lib/translations";
-
+import heroDesktop from "../../../assets/jasper-boer-CvpWxeAEUOE-unsplash.jpg";
 interface HeroSectionProps {
   t: any;
   language: Language;
@@ -25,7 +25,7 @@ export function HeroSection({
       {" "}
       <div className="absolute inset-0">
         <img
-          src="src/assets/jasper-boer-CvpWxeAEUOE-unsplash.jpg"
+          src={heroDesktop}
           alt="Hero Background"
           className="w-full h-full object-cover"
         />
