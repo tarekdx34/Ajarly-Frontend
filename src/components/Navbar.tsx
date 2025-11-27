@@ -155,7 +155,7 @@ export function Navbar({
           <div className="hidden md:flex items-center gap-6">
             <button
               onClick={() => handleNavigation("properties")}
-              className="text-black-200 hover:text-[#00BFA6] transition-colors"
+              className="text-black-600 hover:text-[#00BFA6] transition-colors"
             >
               {isArabic ? "استكشف" : "Explore"}
             </button>
@@ -372,13 +372,13 @@ export function Navbar({
                 <Button
                   variant="outline"
                   onClick={() => handleNavigation("login")}
-                  className="border-[#00BFA6] text-[#00BFA6] hover:bg-[#00BFA6] hover:text-white"
+                  className=" border-[#00BFA6] text-[#00BFA6] hover:bg-[#00BFA6] hover:text-white"
                 >
                   {isArabic ? "تسجيل الدخول" : "Log in"}
                 </Button>
                 <Button
                   onClick={() => handleNavigation("register")}
-                  className="bg-[#FF6B6B] text-white hover:bg-[#FF5252]"
+                  className="!bg-[#FF5S78] text-white hover:bg-[#FF5252]"
                 >
                   {isArabic ? "إنشاء حساب" : "Sign up"}
                 </Button>
@@ -394,13 +394,13 @@ export function Navbar({
               </Button>
             </SheetTrigger>
             <SheetContent>
-              <SheetTitle className="text-2xl font-semibold text-[#2B2B2B] mb-6">
+              <SheetTitle className="text-2xl font-semibold text-[#2B2B2B] mb-6 p-4 pt-8 ">
                 {isArabic ? "القائمة" : "Menu"}
               </SheetTitle>
               <SheetDescription className="sr-only">
                 {isArabic ? "قائمة التنقل الرئيسية" : "Main navigation menu"}
               </SheetDescription>
-              <div className="flex flex-col gap-6 mt-8">
+              <div className="flex flex-col gap-6 mt-8 px-6">
                 {user ? (
                   <>
                     <div className="pb-4 border-b flex items-center gap-3">

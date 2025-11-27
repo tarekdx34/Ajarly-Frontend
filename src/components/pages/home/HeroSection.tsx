@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SearchBar, SearchParams } from "./SearchBar";
 import { Scene3D } from "./Scene3D";
 import { Language } from "../../../lib/translations";
-import heroDesktop from "../../../assets/jasper-boer-CvpWxeAEUOE-unsplash.jpg";
+import heroDesktop from "../../../assets/bahaa-mourad-hx83ehBDWRE-unsplash.jpg";
 interface HeroSectionProps {
   t: any;
   language: Language;
@@ -38,7 +38,7 @@ export function HeroSection({
             {language === "ar" ? (
               <>
                 اكتشف{" "}
-                <span className="text-[#00BFA6] drop-shadow-lg">
+                <span className="text-gray-600 drop-shadow-lg">
                   إيجارات فريدة
                 </span>{" "}
                 على ساحل مصر المتوسطي
@@ -46,7 +46,7 @@ export function HeroSection({
             ) : (
               <>
                 Find Your Perfect{" "}
-                <span className="text-[#00BFA6] drop-shadow-lg">
+                <span className="text-gray-600 drop-shadow-lg">
                   Mediterranean Rental
                 </span>
               </>

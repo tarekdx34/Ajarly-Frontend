@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { useParams } from "react-router-dom"; // ✅ ADD THIS IMPORT
 import { ImageWithFallback } from "../figma/ImageWithFallback";
 import { Button } from "../ui/button";
@@ -47,7 +47,7 @@ interface PropertyDetailsPageProps {
   language?: Language;
 }
 
-export function PropertyDetailsPage({
+export const PropertyDetailsPage = memo(function PropertyDetailsPage({
   onNavigate,
   language = "en",
 }: PropertyDetailsPageProps) {
@@ -135,7 +135,7 @@ export function PropertyDetailsPage({
     }
   }, [property, propertyId, language]);
 
-  const loadPropertyData = async () => {
+  const loadPropertyData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -185,7 +185,7 @@ export function PropertyDetailsPage({
     } finally {
       setLoading(false);
     }
-  };
+  });
 
   const checkAvailability = async () => {
     if (!property || !checkIn || !checkOut) return;
@@ -1140,4 +1140,4 @@ export function PropertyDetailsPage({
       </Dialog>
     </div>
   );
-}
+});

@@ -1,4 +1,5 @@
 import { ChevronRight, RefreshCw } from "lucide-react";
+import { memo } from "react";
 import { Button } from "../../ui/button";
 import { PropertyCard } from "../../PropertyCard";
 import { PropertyResponse } from "../../../../api";
@@ -15,7 +16,8 @@ interface FeaturedPropertiesProps {
   onRefresh: () => void;
 }
 
-export function FeaturedProperties({
+// Wrap component in memo to prevent unnecessary re-renders
+export const FeaturedProperties = memo(function FeaturedProperties({
   t,
   language,
   properties,
@@ -25,6 +27,14 @@ export function FeaturedProperties({
   onNavigate,
   onRefresh,
 }: FeaturedPropertiesProps) {
+  // Remove or comment out debug logging in production
+  // console.log("FeaturedProperties Debug:", {
+  //   propertiesCount: properties?.length,
+  //   properties,
+  //   loading,
+  //   t,
+  // });
+
   return (
     <>
       <div className="flex items-center justify-between mb-8">
@@ -82,4 +92,4 @@ export function FeaturedProperties({
       )}
     </>
   );
-}
+});

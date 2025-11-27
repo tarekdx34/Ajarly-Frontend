@@ -358,7 +358,7 @@ export function PropertiesPage({
     <div className="min-h-screen bg-gray-50">
       {/* Sticky Search Bar */}
       {/* Sticky Search Bar - Desktop */}
-      <div className="hidden lg:block relative z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="hidden md:block relative z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
           <SearchBar
             t={t}
@@ -379,7 +379,7 @@ export function PropertiesPage({
       </div>
 
       {/* Mobile Search Bar */}
-      <div className="block md:hidden sticky top-20 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="block md:hidden relative top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-4 py-3">
           <div className="flex gap-2">
             <div className="flex-1 relative">
@@ -421,7 +421,7 @@ export function PropertiesPage({
       </div>
 
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 py-6">
+      <div className="bg-white border-b border-gray-200 py-6 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>

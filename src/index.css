@@ -163,6 +163,8 @@ body {
     --color-gray-900: oklch(0.21 0.034 264.665);
     --color-black: #000;
     --color-white: #fff;
+    --ajarly-red: #9e0000;
+
     --spacing: 0.25rem;
     --container-sm: 24rem;
     --container-md: 28rem;
@@ -3560,6 +3562,11 @@ body {
   @media (width >= 48rem) {
     .md\:hidden {
       display: none;
+    }
+  }
+  @media (width >= 48rem) {
+    .md\:block {
+      display: block;
     }
   }
 

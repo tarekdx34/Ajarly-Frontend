@@ -52,12 +52,28 @@ export function useHomeData() {
       setRefreshing(true);
       const propertiesResponse = await api.getProperties({
         page: 0,
-        size: 8,
+        size: 50,
         sortBy: "createdAt",
         sortDirection: "DESC",
       });
       if (propertiesResponse?.content) {
-        setFeaturedProperties(propertiesResponse.content);
+        // Filter for featured properties only
+        const featured = propertiesResponse.content.filter(
+          (property) => property.isFeatured === true
+        );
+        setFeaturedProperties(featured);
+
+        console.log("📌 Featured properties loaded:", featured.length);
+      }
+
+      const locationsResponse = await api.getPopularLocations(3);
+      if (locationsResponse) {
+        setPopularLocations(locationsResponse);
+      }
+
+      const governoratesResponse = await api.getGovernorates();
+      if (governoratesResponse) {
+        setGovernorates(governoratesResponse);
       }
     } catch (err) {
       console.error("Error refreshing:", err);
