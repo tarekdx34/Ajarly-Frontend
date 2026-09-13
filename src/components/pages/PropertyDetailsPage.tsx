@@ -34,12 +34,14 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Separator } from "../ui/separator";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Language, translations } from "../../lib/translations";
-import api from "../../../api";
+import api, { isOfflineError, formatApiError } from "../../../api";
 import type {
   PropertyResponse,
   PropertyImageResponse,
   ReviewResponse,
 } from "../../../api";
+import { getMockPropertyById } from "../../lib/mockData";
+import { ErrorState, OfflineDataBanner } from "../ui/error-state";
 
 // ✅ REMOVE propertyId from props
 interface PropertyDetailsPageProps {
@@ -74,6 +76,7 @@ export const PropertyDetailsPage = memo(function PropertyDetailsPage({
   const [reviews, setReviews] = useState<ReviewResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usingSampleData, setUsingSampleData] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
 
   // Booking state
@@ -145,6 +148,7 @@ export const PropertyDetailsPage = memo(function PropertyDetailsPage({
       // Load property details
       const propertyData = await api.getProperty(propertyIdNum);
       setProperty(propertyData);
+      setUsingSampleData(false);
 
       // Load property images
       try {
@@ -181,7 +185,21 @@ export const PropertyDetailsPage = memo(function PropertyDetailsPage({
       }
     } catch (err: any) {
       console.error("Error loading property:", err);
-      setError(err.message || "Failed to load property details");
+
+      if (isOfflineError(err)) {
+        // Backend is unreachable — show a sample property instead of a
+        // dead-end error page.
+        const propertyIdNum = parseInt(propertyId || "0");
+        setProperty(getMockPropertyById(propertyIdNum));
+        setImages([]);
+        setReviews([]);
+        setIsFavorite(false);
+        setUsingSampleData(true);
+        setError(null);
+      } else {
+        setUsingSampleData(false);
+        setError(formatApiError(err));
+      }
     } finally {
       setLoading(false);
     }
@@ -421,15 +439,17 @@ export const PropertyDetailsPage = memo(function PropertyDetailsPage({
   if (error && !property) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center p-4">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            {error ||
-              (language === "ar"
-                ? "لم يتم العثور على العقار"
-                : "Property not found")}
-          </AlertDescription>
-        </Alert>
+        <ErrorState
+          variant="page"
+          message={
+            error ||
+            (language === "ar"
+              ? "لم يتم العثور على العقار"
+              : "Property not found")
+          }
+          onRetry={loadPropertyData}
+          retryLabel={language === "ar" ? "حاول مرة أخرى" : "Try again"}
+        />
       </div>
     );
   }
@@ -443,6 +463,18 @@ export const PropertyDetailsPage = memo(function PropertyDetailsPage({
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {usingSampleData && (
+          <OfflineDataBanner
+            className="mb-6"
+            message={
+              language === "ar"
+                ? "تعذر الوصول إلى الخادم، لذلك تعرض هذه الصفحة عقاراً تجريبياً."
+                : "We can't reach our servers right now, so this is a sample property."
+            }
+            onRetry={loadPropertyData}
+            retryLabel={language === "ar" ? "إعادة المحاولة" : "Try again"}
+          />
+        )}
         {/* Title Section */}
         <div className="mb-6">
           <div className="flex items-start justify-between gap-4">

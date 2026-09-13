@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
-import api, { PropertyResponse, PopularLocation } from "../../../../api";
+import api, {
+  PropertyResponse,
+  PopularLocation,
+  formatApiError,
+  isOfflineError,
+} from "../../../../api";
+import {
+  MOCK_PROPERTIES,
+  MOCK_POPULAR_LOCATIONS,
+  MOCK_GOVERNORATES,
+} from "../../../lib/mockData";
 
 export function useHomeData() {
   const [featuredProperties, setFeaturedProperties] = useState<
@@ -11,6 +21,7 @@ export function useHomeData() {
   const [governorates, setGovernorates] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usingSampleData, setUsingSampleData] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadHomeData = async () => {
@@ -37,11 +48,23 @@ export function useHomeData() {
       if (governoratesResponse) {
         setGovernorates(governoratesResponse);
       }
+
+      setUsingSampleData(false);
     } catch (err: any) {
       console.error("Error loading home data:", err);
-      setError(
-        err?.message || "Failed to load properties. Please try again later."
-      );
+
+      if (isOfflineError(err)) {
+        // Backend is unreachable — show sample listings instead of an
+        // empty, broken-looking homepage.
+        setFeaturedProperties(MOCK_PROPERTIES);
+        setPopularLocations(MOCK_POPULAR_LOCATIONS);
+        setGovernorates(MOCK_GOVERNORATES);
+        setUsingSampleData(true);
+        setError(null);
+      } else {
+        setUsingSampleData(false);
+        setError(formatApiError(err));
+      }
     } finally {
       setLoading(false);
     }
@@ -75,8 +98,16 @@ export function useHomeData() {
       if (governoratesResponse) {
         setGovernorates(governoratesResponse);
       }
+
+      setUsingSampleData(false);
     } catch (err) {
       console.error("Error refreshing:", err);
+      if (isOfflineError(err)) {
+        setFeaturedProperties(MOCK_PROPERTIES);
+        setPopularLocations(MOCK_POPULAR_LOCATIONS);
+        setGovernorates(MOCK_GOVERNORATES);
+        setUsingSampleData(true);
+      }
     } finally {
       setRefreshing(false);
     }
@@ -101,7 +132,9 @@ export function useHomeData() {
     governorates,
     loading,
     error,
+    usingSampleData,
     refreshing,
     handleRefresh,
+    reload: loadHomeData,
   };
 }

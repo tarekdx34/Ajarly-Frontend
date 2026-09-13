@@ -70,7 +70,7 @@ export function SearchBar({
       <div
         className={`${containerClass} md:flex md:flex-row md:items-center ${
           compact ? "gap-3 p-3" : "gap-0"
-        } transition-all duration-300 hidden md:flex`}
+        } transition-all duration-300 hidden md:flex overflow-hidden`}
       >
         <div
           className={`flex-1 px-4 py-3 ${
@@ -187,14 +187,36 @@ export function SearchBar({
 
         <Button
           onClick={handleSearch}
-          size="lg"
-          className={`bg-[#FF6B6B] hover:bg-[#FF5252] text-white ${
-            compact ? "rounded-lg w-full md:w-auto" : "rounded-full m-2 md:m-3"
-          } px-8 md:px-8 transition-all duration-300 hover:scale-110 active:scale-95`}
+          className={`ajarly-search-btn text-white h-auto ${
+            compact ? "w-full" : ""
+          }`}
+          style={{
+            backgroundColor: "#FF6B6B",
+            alignSelf: compact ? undefined : "stretch",
+            paddingLeft: compact ? 24 : 32,
+            paddingRight: compact ? 24 : 32,
+            paddingTop: 12,
+            paddingBottom: 12,
+            borderRadius: compact ? 8 : undefined,
+            // Fill the pill's trailing end-cap: square where it meets the
+            // previous field, fully rounded on the outer edge. Driven by
+            // `language` (not CSS logical properties) so it mirrors
+            // correctly for Arabic regardless of browser support quirks.
+            borderTopLeftRadius: compact ? undefined : language === "ar" ? 9999 : 0,
+            borderBottomLeftRadius: compact ? undefined : language === "ar" ? 9999 : 0,
+            borderTopRightRadius: compact ? undefined : language === "ar" ? 0 : 9999,
+            borderBottomRightRadius: compact ? undefined : language === "ar" ? 0 : 9999,
+          }}
         >
           <Search className="w-5 h-5" />
         </Button>
       </div>
+
+      <style>{`
+        .ajarly-search-btn:hover {
+          background-color: #FF5252;
+        }
+      `}</style>
 
       {/* Mobile Layout - Cleaner without titles */}
       <div className="md:hidden bg-white rounded-lg shadow-lg p-4 w-full">

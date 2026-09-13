@@ -648,7 +648,12 @@ interface PaginationResponse {
 // ============================================
 
 class ApiError extends Error {
-  constructor(message: string, public status: number, public data?: any) {
+  constructor(
+    message: string,
+    public status: number,
+    public data?: any,
+    public isNetworkError: boolean = false
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -726,13 +731,22 @@ class ApiClient {
         throw error;
       }
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        throw new ApiError(
+        // Log the technical detail for developers, but never surface the
+        // backend URL or "fetch" jargon to end users.
+        console.error(
           `Network error: Cannot reach ${this.baseURL}${endpoint}`,
-          0
+          error
+        );
+        throw new ApiError(
+          "Unable to reach the server. Please check your internet connection and try again.",
+          0,
+          undefined,
+          true
         );
       }
+      console.error("Unexpected API error:", error);
       throw new ApiError(
-        error instanceof Error ? error.message : "Network error",
+        error instanceof Error ? error.message : "Something went wrong. Please try again.",
         0
       );
     }
@@ -1812,6 +1826,21 @@ export const clearAuth = (): void => {
 
 export const formatApiError = (error: unknown): string => {
   if (error instanceof ApiError) {
+    if (error.isNetworkError) {
+      return error.message;
+    }
+    if (error.status === 401) {
+      return "Please log in to continue.";
+    }
+    if (error.status === 403) {
+      return "You don't have permission to do that.";
+    }
+    if (error.status === 404) {
+      return "We couldn't find what you're looking for.";
+    }
+    if (error.status >= 500) {
+      return "Our servers are having trouble right now. Please try again shortly.";
+    }
     return error.message;
   }
   if (error instanceof Error) {
@@ -1819,6 +1848,9 @@ export const formatApiError = (error: unknown): string => {
   }
   return "An unexpected error occurred";
 };
+
+export const isOfflineError = (error: unknown): boolean =>
+  error instanceof ApiError && error.isNetworkError === true;
 
 export const formatPaymentError = (error: unknown): string => {
   if (error instanceof ApiError) {

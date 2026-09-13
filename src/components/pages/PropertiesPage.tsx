@@ -13,10 +13,16 @@ import { Slider } from "../ui/slider";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { Search, SlidersHorizontal, Loader2, X } from "lucide-react";
-import api, { PropertyResponse, SearchRequest } from "../../../api";
+import api, {
+  PropertyResponse,
+  SearchRequest,
+  isOfflineError,
+} from "../../../api";
 import { toast } from "sonner";
 import { Language, translations } from "../../lib/translations";
 import { SearchBar, SearchParams } from "./home/SearchBar";
+import { OfflineDataBanner } from "../ui/error-state";
+import { MOCK_PROPERTIES } from "../../lib/mockData";
 
 interface PropertiesPageProps {
   onNavigate: (page: string, propertyId?: string) => void;
@@ -34,6 +40,7 @@ export function PropertiesPage({
 
   const [properties, setProperties] = useState<PropertyResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [usingSampleData, setUsingSampleData] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [mobileSearchQuery, setMobileSearchQuery] = useState("");
@@ -155,10 +162,35 @@ export function PropertiesPage({
       } else {
         setProperties([]);
       }
+      setUsingSampleData(false);
     } catch (err: any) {
       console.error("❌ Search error:", err);
-      toast.error("Failed to load properties");
-      setProperties([]);
+
+      if (isOfflineError(err)) {
+        // Backend is unreachable — show sample listings filtered by the
+        // same criteria instead of an empty "no properties found" page.
+        const sample = MOCK_PROPERTIES.filter((property) => {
+          if (governorate && property.governorate !== governorate) return false;
+          if (city && property.city !== city) return false;
+          if (propertyType && property.propertyType !== propertyType)
+            return false;
+          if (bedrooms && property.bedrooms < parseInt(bedrooms)) return false;
+          return true;
+        });
+        setProperties(sample);
+        setUsingSampleData(true);
+        toast.message(
+          language === "ar"
+            ? "تعذر الوصول إلى الخادم — تُعرض عقارات تجريبية"
+            : "Can't reach our servers — showing sample listings"
+        );
+      } else {
+        toast.error(
+          language === "ar" ? "فشل تحميل العقارات" : "Failed to load properties"
+        );
+        setProperties([]);
+        setUsingSampleData(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -710,6 +742,18 @@ export function PropertiesPage({
                 </SelectContent>
               </Select>
             </div>
+
+            {!loading && usingSampleData && (
+              <OfflineDataBanner
+                message={
+                  language === "ar"
+                    ? "تعذر الوصول إلى الخادم، لذلك نعرض لك عقارات تجريبية."
+                    : "We can't reach our servers right now, so you're viewing sample listings."
+                }
+                onRetry={searchProperties}
+                retryLabel={language === "ar" ? "إعادة المحاولة" : "Try again"}
+              />
+            )}
 
             {loading && (
               <div className="flex items-center justify-center py-20">

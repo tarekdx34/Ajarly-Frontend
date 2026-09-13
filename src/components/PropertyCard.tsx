@@ -35,6 +35,14 @@ export function PropertyCard({
 
   // Fetch the first image from the property
   useEffect(() => {
+    // Properties already carry a coverImage (real data or sample/demo data) —
+    // use it directly instead of firing an extra images request per card.
+    if (property.coverImage) {
+      setThumbnail(property.coverImage);
+      setLoadingImage(false);
+      return;
+    }
+
     const fetchThumbnail = async () => {
       try {
         setLoadingImage(true);
@@ -64,7 +72,7 @@ export function PropertyCard({
     };
 
     fetchThumbnail();
-  }, [property.propertyId]);
+  }, [property.propertyId, property.coverImage]);
 
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();

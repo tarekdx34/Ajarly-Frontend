@@ -9,6 +9,7 @@ import { FeaturedProperties } from "./home/FeaturedProperties";
 import { WhyAjarly } from "./home/WhyAjarly";
 import { HostCTA } from "./home/HostCTA";
 import { useHomeData } from "./home/useHomeData";
+import { ErrorState, OfflineDataBanner } from "../ui/error-state";
 
 interface HomePageProps {
   onNavigate: (
@@ -31,8 +32,10 @@ export function HomePage({ onNavigate, language = "en", user }: HomePageProps) {
     governorates,
     loading,
     error,
+    usingSampleData,
     refreshing,
     handleRefresh,
+    reload,
   } = useHomeData();
 
   useEffect(() => {
@@ -77,9 +80,24 @@ export function HomePage({ onNavigate, language = "en", user }: HomePageProps) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            {error}
-          </div>
+          <ErrorState
+            message={error}
+            onRetry={reload}
+            retryLabel={language === "ar" ? "حاول مرة أخرى" : "Try again"}
+            className="mb-8"
+          />
+        )}
+
+        {usingSampleData && (
+          <OfflineDataBanner
+            message={
+              language === "ar"
+                ? "تعذر الوصول إلى الخادم، لذلك نعرض لك عقارات تجريبية."
+                : "We can't reach our servers right now, so you're viewing sample listings."
+            }
+            onRetry={reload}
+            retryLabel={language === "ar" ? "إعادة المحاولة" : "Try again"}
+          />
         )}
 
         <section className="mb-16">
